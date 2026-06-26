@@ -27,7 +27,7 @@ import queue
 from datetime import datetime
 from pathlib import Path
 
-# ── Frank's Virtual Employees integration ───────────────────────
+
 try:
     _ve_path = os.path.join(os.path.dirname(__file__), "virtual-employees")
     if os.path.isdir(_ve_path):
@@ -40,7 +40,6 @@ try:
 except Exception:
     HAS_VIRTUAL_EMPLOYEES = False
 
-# ── FV v2.2 Memory System ───────────────────────────────────────
 HAS_MEMORY = False
 _memory_fact_count = 0
 try:
@@ -73,7 +72,7 @@ try:
 except Exception:
     pass
 
-# ── Taranpreet's Governance Framework ───────────────────────────
+
 try:
     _gov_path = os.path.join(os.path.dirname(__file__), "governance")
     if os.path.isdir(_gov_path):
@@ -92,7 +91,7 @@ try:
 except Exception:
     HAS_GOVERNANCE = False
 
-# ── OpenHands SDK ───────────────────────────────────────────────
+
 try:
     from openhands.sdk import LLM as OH_LLM, Agent as OH_Agent, Conversation as OH_Conversation
     HAS_OPENHANDS = True
