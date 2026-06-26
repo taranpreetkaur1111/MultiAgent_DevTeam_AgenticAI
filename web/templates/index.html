@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORACLE LENS | Autonomous Software Development Team | Agentic AI Framework v2.1</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="app-header">
+    <div class="header-left">
+        <div class="logo-hex">
+            <svg viewBox="0 0 50 50" width="42" height="42">
+                <polygon points="25,3 45,14 45,36 25,47 5,36 5,14"
+                         fill="#1e3a5f" stroke="#06b6d4" stroke-width="1.5"/>
+                <text x="25" y="29" text-anchor="middle" fill="#60a5fa"
+                      font-family="JetBrains Mono" font-size="11" font-weight="700">OL</text>
+            </svg>
+        </div>
+        <div class="header-titles">
+            <h1>ORACLE LENS</h1>
+            <p class="header-sub">AUTONOMOUS SOFTWARE DEVELOPMENT TEAM &middot; AGENTIC AI FRAMEWORK &middot; OPENHANDS COMPATIBLE</p>
+        </div>
+    </div>
+    <div class="header-right">
+        <span class="header-badge badge-blue">MULTI-AGENT ORCHESTRATION</span>
+        <span class="header-badge badge-green">GOVERNANCE ENABLED</span>
+        <span class="header-badge badge-purple">AI-NATIVE SDLC</span>
+    </div>
+</header>
+
+<div class="header-sep"></div>
+
+<!-- ═══════════════ MAIN LAYOUT ═══════════════ -->
+<div class="main-layout">
+
+    <!-- ──── LEFT PANEL ──── -->
+    <aside class="panel-left">
+        <div class="section-header">
+            <span class="section-title">THE TEAM</span>
+            <span class="section-sub">Agentic Workforce</span>
+        </div>
+
+        {% for agent in agents %}
+        <div class="agent-card" id="agent-card-{{ agent.name }}" data-agent="{{ agent.name }}">
+            <div class="agent-card-top">
+                <div class="agent-avatar" style="background: {{ agent.icon_bg }}; border-color: {{ agent.color }};">
+                    <span style="color: {{ agent.color }};">{{ agent.avatar }}</span>
+                </div>
+                <div class="agent-info">
+                    <div class="agent-name-row">
+                        <span class="agent-name">{{ agent.name }}</span>
+                        <span class="agent-dot" id="dot-{{ agent.name }}"></span>
+                        <span class="agent-status" id="status-{{ agent.name }}">STANDBY</span>
+                    </div>
+                    <div class="agent-meta">{{ agent.role }} &middot; {{ agent.subtitle }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="panel-sep"></div>
+
+        <div class="section-header">
+            <span class="section-title">CHANGE REQUEST</span>
+        </div>
+
+        <label class="field-label">REPOSITORY PATH</label>
+        <div class="input-row">
+            <input type="text" id="repo-path" class="text-input" placeholder="/path/to/repo"
+                   value="~/projects/acme-webapp">
+        </div>
+
+        <label class="field-label">CHANGE DESCRIPTION</label>
+        <textarea id="change-request" class="text-area" rows="5"
+                  placeholder="Describe the changes you want to make...">Add a dark mode toggle to the settings page. When toggled, all UI components should switch to a dark color scheme. Persist the user's preference in localStorage so it survives page refreshes. Include a smooth CSS transition animation.</textarea>
+
+        <button id="launch-btn" class="launch-btn" onclick="launchPipeline()">
+            <span class="btn-icon">&#9654;</span> DEPLOY TEAM
+        </button>
+        <p class="launch-hint">Agents will autonomously plan, develop, review,<br>test, document, and validate your changes.</p>
+
+        <div class="panel-sep"></div>
+
+        <div class="integration-list">
+            <div class="integration-item">
+                <span class="int-dot {% if has_memory %}int-dot-on{% else %}int-dot-warn{% endif %}"></span>
+                {{ memory_mode }}{% if has_memory %} ({{ memory_fact_count }} facts){% endif %}
+            </div>
+            <div class="integration-item">
+                <span class="int-dot int-dot-off"></span> OpenHands
+            </div>
+            <div class="integration-item">
+                <span class="int-dot int-dot-off"></span> Governance
+            </div>
+            <div class="integration-item">
+                <span class="int-dot int-dot-off"></span> Context Pack
+            </div>
+            <div class="integration-item">
+                <span class="int-dot {% if llm_mode == 'Anthropic API' %}int-dot-on{% elif llm_mode == 'Demo Mode' %}int-dot-warn{% else %}int-dot-on{% endif %}"></span>
+                {{ llm_mode }}
+            </div>
+        </div>
+    </aside>
+
+    <!-- ──── CENTER PANEL ──── -->
+    <main class="panel-center">
+        <div class="center-toolbar">
+            <div class="tab-bar">
+                <button class="tab-btn active" data-tab="main" onclick="switchTab('main')">MAIN</button>
+                {% for agent in agents %}
+                <button class="tab-btn" data-tab="{{ agent.name }}" onclick="switchTab('{{ agent.name }}')">{{ agent.name }}</button>
+                {% endfor %}
+            </div>
+            <span class="msg-count" id="msg-count">0 messages</span>
+        </div>
+
+        <!-- Main conversation tab -->
+        <div class="tab-content active" id="tab-main">
+            <div class="conversation" id="conversation">
+                <div class="conv-welcome">
+                    <div class="welcome-hex">
+                        <svg viewBox="0 0 80 80" width="60" height="60">
+                            <polygon points="40,4 72,22 72,58 40,76 8,58 8,22"
+                                     fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="40" y="45" text-anchor="middle" fill="#60a5fa"
+                                  font-family="JetBrains Mono" font-size="14" font-weight="700">OL</text>
+                        </svg>
+                    </div>
+                    <h2>Oracle Lens Ready</h2>
+                    <p>Enter a change request and deploy the team to begin<br>the autonomous development pipeline.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent tabs (hidden by default) -->
+        {% for agent in agents %}
+        <div class="tab-content" id="tab-{{ agent.name }}">
+            <div class="agent-tab-header">
+                <div class="agent-avatar agent-avatar-lg" style="background: {{ agent.icon_bg }}; border-color: {{ agent.color }};">
+                    <span style="color: {{ agent.color }};">{{ agent.avatar }}</span>
+                </div>
+                <div>
+                    <h2 class="agent-tab-name">{{ agent.name }}</h2>
+                    <p class="agent-tab-role" style="color: {{ agent.color }};">{{ agent.role }} &middot; {{ agent.subtitle }}</p>
+                </div>
+            </div>
+            <div class="agent-tab-stats" id="stats-{{ agent.name }}">
+                <div class="stat-card">
+                    <span class="stat-val stat-cyan" id="stat-calls-{{ agent.name }}">0</span>
+                    <span class="stat-label">CALLS</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val stat-blue" id="stat-tokens-{{ agent.name }}">0</span>
+                    <span class="stat-label">TOKENS</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val stat-green" id="stat-time-{{ agent.name }}">--</span>
+                    <span class="stat-label">DURATION</span>
+                </div>
+            </div>
+            <div class="agent-tab-section-label">LAST OUTPUT</div>
+            <div class="agent-tab-output" id="output-{{ agent.name }}">
+                <p class="muted">No output yet &mdash; deploy the team to see results.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+
+    <!-- ──── RIGHT PANEL ──── -->
+    <aside class="panel-right">
+        <div class="section-header">
+            <span class="section-title">DELIVERY PIPELINE</span>
+        </div>
+
+        {% for stage in stages %}
+        <div class="pipeline-stage" id="stage-{{ loop.index0 }}">
+            <div class="stage-top">
+                <span class="stage-icon">{{ stage.icon }}</span>
+                <div class="stage-info">
+                    <div class="stage-name">{{ stage.name | upper }}</div>
+                    <div class="stage-buzz">{{ stage.buzzword }}</div>
+                </div>
+                <span class="stage-status" id="stage-status-{{ loop.index0 }}">PENDING</span>
+            </div>
+            <div class="stage-bar-track">
+                <div class="stage-bar-fill" id="stage-bar-{{ loop.index0 }}"></div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="panel-sep"></div>
+
+        <div class="section-header">
+            <span class="section-title">PERFORMANCE METRICS</span>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-val" id="metric-recalled">0</span>
+                <span class="metric-label">FACTS RECALLED</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-val" id="metric-tokens">0</span>
+                <span class="metric-label">TOKENS PROCESSED</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-val" id="metric-agents">10</span>
+                <span class="metric-label">ACTIVE AGENTS</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-val" id="metric-tasks">0</span>
+                <span class="metric-label">TASKS GENERATED</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-val" id="metric-coverage">0%</span>
+                <span class="metric-label">CODE COVERAGE</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-val" id="metric-governance">--</span>
+                <span class="metric-label">GOVERNANCE SCORE</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-val" id="metric-time">0:00</span>
+                <span class="metric-label">ELAPSED TIME</span>
+            </div>
+        </div>
+
+        <div class="panel-sep"></div>
+
+        <div class="section-header">
+            <span class="section-title">MEMORY BANK</span>
+            <span class="section-sub" id="memory-bank-count">FV v2.2{% if has_memory %} &middot; {{ memory_fact_count }} facts{% endif %}</span>
+        </div>
+        <div class="memory-bank" id="memory-bank">
+            <div class="memory-bank-empty" id="memory-bank-empty">
+                <span class="memory-bank-icon">&#x29BF;</span>
+                <span>Run a pipeline to see memory in action</span>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- ═══════════════ STATUS BAR ═══════════════ -->
+<footer class="status-bar">
+    <span class="status-text">
+        ORACLE LENS v2.2 &nbsp;|&nbsp; Agentic Framework: READY &nbsp;|&nbsp;
+        LLM: {{ llm_mode }} &nbsp;|&nbsp; Memory: {{ memory_mode }} &nbsp;|&nbsp; Agents: 10/10 Online
+    </span>
+    <span class="status-right">
+        <span class="status-dot {% if llm_mode == 'Anthropic API' %}dot-green{% else %}dot-yellow{% endif %}"></span>
+        <span class="status-mode">{% if llm_mode == 'Anthropic API' %}API CONNECTED{% else %}DEMO MODE{% endif %}</span>
+    </span>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// CLIENT-SIDE JS
+// ══════════════════════════════════════════════════════════════
+
+let running = false;
+let messageCount = 0;
+let startTime = null;
+let timerInterval = null;
+const agentStartTimes = {};
+const agentOutputs = {};
+let hasMemoryContext = false;
+let memoryBankItems = [];
+
+// ── Tab switching ────────────────────────────────────────────
+function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+    document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+// ── Markdown rendering ──────────────────────────────────────
+function renderMarkdown(text) {
+    try {
+        return marked.parse(text);
+    } catch(e) {
+        return text.replace(/\n/g, '<br>');
+    }
+}
+
+// ── Pipeline launch ─────────────────────────────────────────
+function launchPipeline() {
+    if (running) return;
+
+    const changeRequest = document.getElementById('change-request').value.trim();
+    const repoPath = document.getElementById('repo-path').value.trim();
+
+    if (!changeRequest) {
+        alert('Please describe the changes you want to make.');
+        return;
+    }
+
+    running = true;
+    messageCount = 0;
+    startTime = Date.now();
+
+    // Update button
+    const btn = document.getElementById('launch-btn');
+    btn.classList.add('deployed');
+    btn.innerHTML = '<span class="btn-spinner"></span> TEAM DEPLOYED';
+    btn.disabled = true;
+
+    // Reset UI
+    resetPipelineUI();
+
+    // Start timer
+    timerInterval = setInterval(updateTimer, 1000);
+
+    // Start SSE: POST to get run_id, then open EventSource for streaming
+    fetch('/api/pipeline', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({change_request: changeRequest, repo_path: repoPath})
+    }).then(r => r.json()).then(result => {
+        const es = new EventSource(`/api/pipeline/stream?run_id=${result.run_id}`);
+        const events = ['stage','system','agent_header','agent_token','agent_done',
+                        'agent_status','metrics','pipeline_done','memory_status',
+                        'memory_result','memory_summary','memory_stored'];
+        events.forEach(evt => {
+            es.addEventListener(evt, function(e) {
+                handleSSE(evt, JSON.parse(e.data));
+                if (evt === 'pipeline_done') {
+                    es.close();
+                    pipelineDone();
+                }
+            });
+        });
+        es.onerror = function() { es.close(); pipelineDone(); };
+    });
+}
+
+function resetPipelineUI() {
+    // Reset stages (13: 0-12)
+    for (let i = 0; i < 13; i++) {
+        const stage = document.getElementById(`stage-${i}`);
+        if (stage) {
+            stage.className = 'pipeline-stage';
+            document.getElementById(`stage-status-${i}`).textContent = 'PENDING';
+            document.getElementById(`stage-bar-${i}`).style.width = '0%';
+        }
+    }
+
+    // Reset agents
+    const agents = ['Aria', 'Orion', 'Marcus', 'Lyra', 'Sage', 'Cipher', 'Nova', 'Forge', 'Echo', 'Atlas'];
+    agents.forEach(name => {
+        document.getElementById(`status-${name}`).textContent = 'STANDBY';
+        document.getElementById(`status-${name}`).className = 'agent-status';
+        document.getElementById(`dot-${name}`).className = 'agent-dot';
+        document.getElementById(`agent-card-${name}`).className = 'agent-card';
+        agentOutputs[name] = '';
+    });
+
+    // Clear conversation
+    const conv = document.getElementById('conversation');
+    conv.innerHTML = '';
+
+    // Reset memory state
+    hasMemoryContext = false;
+    memoryBankItems = [];
+    const bank = document.getElementById('memory-bank');
+    if (bank) bank.innerHTML = '<div class="memory-bank-empty" id="memory-bank-empty"><span class="memory-bank-icon">&#x29BF;</span><span>Run a pipeline to see memory in action</span></div>';
+
+    // Reset metrics
+    document.getElementById('metric-recalled').textContent = '0';
+    document.getElementById('metric-tokens').textContent = '0';
+    document.getElementById('metric-tasks').textContent = '0';
+    document.getElementById('metric-coverage').textContent = '0%';
+    document.getElementById('metric-governance').textContent = '--';
+    document.getElementById('metric-time').textContent = '0:00';
+    document.getElementById('msg-count').textContent = '0 messages';
+}
+
+// ── SSE Event Handler ───────────────────────────────────────
+let currentAgentBlock = null;
+let currentAgentName = null;
+
+function handleSSE(event, data) {
+    const conv = document.getElementById('conversation');
+
+    switch(event) {
+        case 'system': {
+            const div = document.createElement('div');
+            div.className = 'conv-system';
+            div.innerHTML = `<span class="sys-arrow">&#9656;</span> ${escapeHtml(data.text)}`;
+            conv.appendChild(div);
+            conv.scrollTop = conv.scrollHeight;
+            break;
+        }
+
+        case 'agent_header': {
+            messageCount++;
+            document.getElementById('msg-count').textContent = `${messageCount} messages`;
+
+            currentAgentName = data.name;
+            agentStartTimes[data.name] = Date.now();
+            if (!agentOutputs[data.name]) agentOutputs[data.name] = '';
+
+            const memBadge = hasMemoryContext
+                ? '<span class="agent-mem-badge">&#x29BF; MEMORY-INFORMED</span>'
+                : '';
+
+            const block = document.createElement('div');
+            block.className = 'conv-agent-block';
+            block.innerHTML = `
+                <div class="conv-agent-header">
+                    <span class="conv-agent-name" style="color: ${data.color};">${data.name}</span>
+                    <span class="conv-agent-role">${data.role}</span>
+                    ${memBadge}
+                    <span class="conv-timestamp">${new Date().toLocaleTimeString('en-US', {hour12: false})}</span>
+                </div>
+                <div class="conv-agent-body" id="body-${data.name}"></div>
+            `;
+            conv.appendChild(block);
+            currentAgentBlock = document.getElementById(`body-${data.name}`);
+            conv.scrollTop = conv.scrollHeight;
+            break;
+        }
+
+        case 'agent_token': {
+            if (currentAgentBlock && currentAgentName === data.name) {
+                agentOutputs[data.name] = (agentOutputs[data.name] || '') + data.text;
+                currentAgentBlock.innerHTML = renderMarkdown(agentOutputs[data.name]);
+                conv.scrollTop = conv.scrollHeight;
+            }
+            break;
+        }
+
+        case 'agent_done': {
+            // Add separator
+            const sep = document.createElement('div');
+            sep.className = 'conv-separator';
+            conv.appendChild(sep);
+
+            // Update agent tab output
+            const outputEl = document.getElementById(`output-${data.name}`);
+            if (outputEl && agentOutputs[data.name]) {
+                outputEl.innerHTML = renderMarkdown(agentOutputs[data.name]);
+            }
+
+            // Update agent tab stats
+            const duration = ((Date.now() - (agentStartTimes[data.name] || Date.now())) / 1000).toFixed(1);
+            const callsEl = document.getElementById(`stat-calls-${data.name}`);
+            const tokensEl = document.getElementById(`stat-tokens-${data.name}`);
+            const timeEl = document.getElementById(`stat-time-${data.name}`);
+            if (callsEl) callsEl.textContent = '1';
+            if (tokensEl) tokensEl.textContent = (agentOutputs[data.name] || '').split(/\s+/).length.toLocaleString();
+            if (timeEl) timeEl.textContent = `${duration}s`;
+
+            currentAgentBlock = null;
+            currentAgentName = null;
+            break;
+        }
+
+        case 'agent_status': {
+            const statusEl = document.getElementById(`status-${data.name}`);
+            const dotEl = document.getElementById(`dot-${data.name}`);
+            const cardEl = document.getElementById(`agent-card-${data.name}`);
+
+            if (statusEl) {
+                statusEl.textContent = data.status;
+                statusEl.style.color = data.color;
+            }
+            if (dotEl) {
+                dotEl.style.backgroundColor = data.color;
+                if (data.status === 'DONE') {
+                    dotEl.className = 'agent-dot dot-done';
+                } else {
+                    dotEl.className = 'agent-dot dot-active';
+                }
+            }
+            if (cardEl) {
+                if (data.status === 'DONE') {
+                    cardEl.className = 'agent-card card-done';
+                } else if (data.status !== 'STANDBY') {
+                    cardEl.className = 'agent-card card-active';
+                }
+            }
+            break;
+        }
+
+        case 'stage': {
+            const stage = document.getElementById(`stage-${data.index}`);
+            const statusEl = document.getElementById(`stage-status-${data.index}`);
+            const bar = document.getElementById(`stage-bar-${data.index}`);
+
+            if (data.status === 'active') {
+                stage.className = 'pipeline-stage stage-active';
+                statusEl.textContent = 'RUNNING';
+                animateBar(bar);
+            } else if (data.status === 'complete') {
+                stage.className = 'pipeline-stage stage-complete';
+                statusEl.textContent = 'DONE';
+                bar.style.width = '100%';
+                bar.style.transition = 'width 0.3s ease';
+            }
+            break;
+        }
+
+        case 'memory_status': {
+            const memDiv = document.createElement('div');
+            memDiv.className = 'conv-memory-header';
+            memDiv.innerHTML = `
+                <div class="memory-header-row">
+                    <span class="memory-icon">&#x29BF;</span>
+                    <span class="memory-title">FV v2.2 MEMORY SYSTEM</span>
+                    <span class="memory-badge memory-badge-${data.mode === 'LIVE' ? 'live' : 'demo'}">${data.mode}</span>
+                    <span class="memory-fact-count">${data.fact_count.toLocaleString()} facts in store</span>
+                </div>
+            `;
+            conv.appendChild(memDiv);
+            conv.scrollTop = conv.scrollHeight;
+
+            // Clear memory bank for fresh display
+            const bank = document.getElementById('memory-bank');
+            bank.innerHTML = '';
+            document.getElementById('memory-bank-empty').style.display = 'none';
+            memoryBankItems = [];
+            break;
+        }
+
+        case 'memory_result': {
+            const typeColors = {solution: '#10b981', mistake: '#ef4444', change: '#f59e0b', research: '#8b5cf6'};
+            const typeIcons = {solution: '\u2713', mistake: '\u2717', change: '\u21BB', research: '\u2691'};
+            const typeLabels = {solution: 'SOLUTION', mistake: 'MISTAKE', change: 'CHANGE', research: 'RESEARCH'};
+
+            // Add to conversation
+            const mDiv = document.createElement('div');
+            mDiv.className = 'conv-memory-result';
+            mDiv.innerHTML = `
+                <div class="memory-result-row">
+                    <span class="memory-type-badge" style="background: ${typeColors[data.type] || '#64748b'};">${typeLabels[data.type] || data.type.toUpperCase()}</span>
+                    <span class="memory-score">${data.score}</span>
+                </div>
+                <div class="memory-result-text">${escapeHtml(data.text)}</div>
+            `;
+            conv.appendChild(mDiv);
+            conv.scrollTop = conv.scrollHeight;
+            messageCount++;
+            document.getElementById('msg-count').textContent = `${messageCount} messages`;
+
+            // Add to Memory Bank panel (right sidebar)
+            const bankItem = document.createElement('div');
+            bankItem.className = 'mb-item mb-item-in';
+            bankItem.innerHTML = `
+                <div class="mb-item-header">
+                    <span class="mb-dot" style="background:${typeColors[data.type] || '#64748b'};"></span>
+                    <span class="mb-type">${typeLabels[data.type] || data.type.toUpperCase()}</span>
+                    <span class="mb-score">${data.score}</span>
+                    <span class="mb-dir">RECALLED</span>
+                </div>
+                <div class="mb-text">${escapeHtml(data.text).substring(0, 120)}${data.text.length > 120 ? '...' : ''}</div>
+            `;
+            document.getElementById('memory-bank').appendChild(bankItem);
+            memoryBankItems.push(data);
+            break;
+        }
+
+        case 'memory_summary': {
+            hasMemoryContext = data.count > 0;
+
+            const sumDiv = document.createElement('div');
+            sumDiv.className = 'conv-memory-summary';
+            sumDiv.innerHTML = `<span class="memory-check">&#x2713;</span> ${escapeHtml(data.text)}`;
+            conv.appendChild(sumDiv);
+
+            const sep = document.createElement('div');
+            sep.className = 'conv-separator';
+            conv.appendChild(sep);
+            conv.scrollTop = conv.scrollHeight;
+            break;
+        }
+
+        case 'memory_stored': {
+            // New fact was stored — add to Memory Bank with "STORED" animation
+            const storeDiv = document.createElement('div');
+            storeDiv.className = 'conv-memory-stored';
+            storeDiv.innerHTML = `<span class="memory-store-icon">&#x2B06;</span> ${escapeHtml(data.text)}`;
+            conv.appendChild(storeDiv);
+            conv.scrollTop = conv.scrollHeight;
+
+            // Add to Memory Bank with glow animation
+            const storedItem = document.createElement('div');
+            storedItem.className = 'mb-item mb-item-stored';
+            storedItem.innerHTML = `
+                <div class="mb-item-header">
+                    <span class="mb-dot" style="background:#06b6d4;"></span>
+                    <span class="mb-type">NEW</span>
+                    <span class="mb-dir mb-dir-stored">STORED</span>
+                </div>
+                <div class="mb-text">${escapeHtml(data.text).substring(0, 120)}...</div>
+            `;
+            document.getElementById('memory-bank').appendChild(storedItem);
+
+            // Update count
+            const countEl = document.getElementById('memory-bank-count');
+            if (countEl && data.new_count) {
+                countEl.textContent = `FV v2.2 \u00B7 ${data.new_count} facts`;
+            }
+            break;
+        }
+
+        case 'metrics': {
+            if (data.recalled) document.getElementById('metric-recalled').textContent = data.recalled;
+            if (data.tokens) document.getElementById('metric-tokens').textContent = data.tokens;
+            if (data.tasks) document.getElementById('metric-tasks').textContent = data.tasks;
+            if (data.coverage) document.getElementById('metric-coverage').textContent = data.coverage;
+            if (data.governance) document.getElementById('metric-governance').textContent = data.governance;
+            if (data.time) document.getElementById('metric-time').textContent = data.time;
+            break;
+        }
+
+        case 'pipeline_done': {
+            pipelineDone();
+            break;
+        }
+    }
+}
+
+function animateBar(bar) {
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    // Animate to ~70% quickly, then slow pulse
+    requestAnimationFrame(() => {
+        bar.style.transition = 'width 2s ease-out';
+        bar.style.width = '70%';
+    });
+}
+
+function pipelineDone() {
+    running = false;
+    if (timerInterval) clearInterval(timerInterval);
+
+    const btn = document.getElementById('launch-btn');
+    btn.classList.remove('deployed');
+    btn.innerHTML = '<span class="btn-icon">&#9654;</span> DEPLOY TEAM';
+    btn.disabled = false;
+}
+
+function updateTimer() {
+    if (!startTime) return;
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    document.getElementById('metric-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Configure marked
+marked.setOptions({
+    breaks: true,
+    gfm: true,
+    highlight: function(code, lang) {
+        return `<code class="hlcode">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>`;
+    }
+});
+</script>
+</body>
+</html>
